@@ -15,7 +15,7 @@ import android.view.animation.AnimationUtils;
 
 public class MainActivity extends AppCompatActivity implements GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener {
-
+    //adding this to see if my commit successed
     private GestureDetectorCompat GD;
     //register the image view
     ImageView imageView2;
