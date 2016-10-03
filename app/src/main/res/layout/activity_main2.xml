@@ -12,10 +12,10 @@
     tools:context="com.cs591.tianyang.worksheet4_a.Main2Activity">
 
     <ImageView
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/team0"
+        android:id="@+id/ImageMove"
+        android:layout_width="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/imageView" />
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>
