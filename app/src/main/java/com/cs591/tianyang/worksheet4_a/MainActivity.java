@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
         imageView2 = (ImageView) findViewById(R.id.imageView2);
 
 
+
+
     }
 
     @Override

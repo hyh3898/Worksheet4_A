@@ -9,18 +9,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 
 
 public class Main2Activity extends AppCompatActivity {
     private
     ImageView ImageMove;
+    Animation moveRightAnim,rotateAnim,moveLeftAnim,moveUpAnim,moveDownAnim,shakingAnim;
     private String TAG = "BOSTON";
 
     private float lastX, lastY, lastZ;  //remeber the starting position
+
     private float acceleration;
     private float currentAcceleration;
     private float lastAcceleration;
+    private SensorManager sensorManager = null;
 
     // determine if the user is shaking the phone reeeeeeally hard.
     private static int SIGNIFICANT_SHAKE = 1000;
@@ -32,14 +37,27 @@ public class Main2Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
-        //register ImageView
-        ImageMove = (ImageView)findViewById(R.id.ImageMove);
-
         // initialize acceleration values
         acceleration = 0.00f;                                         //Initializing Acceleration data.
         currentAcceleration = SensorManager.GRAVITY_EARTH;            //We live on Earth.
         lastAcceleration = SensorManager.GRAVITY_EARTH;               //Ctrl-Click to see where else we could use our phone.
-        setContentView(R.layout.activity_main);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        //register ImageView
+        ImageMove = (ImageView)findViewById(R.id.ImageMove);
+        //register anim
+        moveRightAnim = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.move_right);
+        moveLeftAnim = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.move_left);
+        moveUpAnim = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.move_up);
+        moveDownAnim = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.move_down);
+        rotateAnim = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.rotate);
+        shakingAnim = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.shaking);
 
 
     }
@@ -50,6 +68,9 @@ public class Main2Activity extends AppCompatActivity {
     protected void onStart() {
         setContentView(R.layout.activity_main2);
         super.onStart();
+        //register ImageView
+        ImageMove = (ImageView)findViewById(R.id.ImageMove);
+
         Log.i(TAG, "onStart Triggered.");
         enableAccelerometerListening();
     }
@@ -123,26 +144,37 @@ public class Main2Activity extends AppCompatActivity {
             // if the acceleration is above a certain threshold
             // Make this higher or lower according to how much
             // motion you want to detect
-            if (acceleration > 1) {
+            if (acceleration>10) {
+                Log.e(TAG, "we are shaking!");
+                ImageMove.startAnimation(shakingAnim);
+            }
+            else if (acceleration >2 && acceleration<10) {
                 float DeltaX = Math.abs(x-lastX);
                 float DeltaY = Math.abs(y-lastY);
 
                 if (DeltaX<DeltaY){
-                    if (DeltaX <-5){
-                        Log.e(TAG, "moving to right!");
-                    }
-                    if (DeltaX>5){
+                    if (x-lastX >1){
                         Log.e(TAG, "moving to left!");
+                        ImageMove.startAnimation(moveLeftAnim);
+
+                    }
+                    else if (x-lastX<-1){
+                        Log.e(TAG, "moving to right!");
+                        ImageMove.startAnimation(moveRightAnim);
+
                     }
                 }else {
-                    if (DeltaY < -5) {
+                    if (y-lastY >1) {
                         Log.e(TAG, "moving up!");
+                        ImageMove.startAnimation(moveUpAnim);
+
                     }
-                    if (DeltaY > 5) {
-                        Log.e(TAG, "moving to down!");
+                    else if (y-lastY <-1) {
+                        Log.e(TAG, "moving down!");
+                        ImageMove.startAnimation(moveDownAnim);
+
                     }
                 }
-
 
             }
 
@@ -150,6 +182,8 @@ public class Main2Activity extends AppCompatActivity {
             lastY = y;
             lastZ = z;
         }
+
+
 
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {

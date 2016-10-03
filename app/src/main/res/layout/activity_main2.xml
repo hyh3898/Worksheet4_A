@@ -12,12 +12,13 @@
     tools:context="com.cs591.tianyang.worksheet4_a.Main2Activity">
 
     <ImageView
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         app:srcCompat="@drawable/team0"
         android:id="@+id/ImageMove"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:contentDescription="this is team pic" />
 
     <TextView
         android:text="This is Activity2"
