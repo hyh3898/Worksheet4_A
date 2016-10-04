@@ -5,21 +5,26 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 
 
-public class Main2Activity extends AppCompatActivity {
+public class Main2Activity extends AppCompatActivity implements GestureDetector.OnGestureListener,
+        GestureDetector.OnDoubleTapListener{
     private
     ImageView ImageMove;
-    Animation moveRightAnim,rotateAnim,moveLeftAnim,moveUpAnim,moveDownAnim,shakingAnim;
+    Animation moveRightAnim,rotateAnim,moveLeftAnim,moveUpAnim,moveDownAnim,shakingAnim,rotateCW5Anim,rotateCCW5Anim,rotateCW10Anim,rotateCCW10Anim;
     private String TAG = "BOSTON";
-
+    private static final int SWIPE_THRESHOLD = 100;
+    private static final int SWIPE_VELOCITY_THRESHOLD = 100;
     private float lastX, lastY, lastZ;  //remeber the starting position
 
     private float acceleration;
@@ -30,7 +35,7 @@ public class Main2Activity extends AppCompatActivity {
     // determine if the user is shaking the phone reeeeeeally hard.
     private static int SIGNIFICANT_SHAKE = 1000;
 
-
+    private GestureDetectorCompat GD;
 
 
     @Override
@@ -42,6 +47,10 @@ public class Main2Activity extends AppCompatActivity {
         currentAcceleration = SensorManager.GRAVITY_EARTH;            //We live on Earth.
         lastAcceleration = SensorManager.GRAVITY_EARTH;               //Ctrl-Click to see where else we could use our phone.
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        GD = new GestureDetectorCompat(this,this);
+        // Set the gesture detector as the double tap
+        // listener.
+        GD.setOnDoubleTapListener(this);
 
         //register ImageView
         ImageMove = (ImageView)findViewById(R.id.ImageMove);
@@ -58,6 +67,14 @@ public class Main2Activity extends AppCompatActivity {
                 R.anim.rotate);
         shakingAnim = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.shaking);
+        rotateCW5Anim = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.rotate_cw_5);
+        rotateCCW5Anim = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.rotate_ccw_5);
+        rotateCCW10Anim = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.rotate_ccw_10);
+        rotateCW10Anim = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.rotate_cw_10);
 
 
     }
@@ -80,6 +97,13 @@ public class Main2Activity extends AppCompatActivity {
         Log.i(TAG, "onStop Triggered.");
         disableAccelerometerListening();
         super.onStop();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        this.GD.onTouchEvent(event); //insert this line to consume the touch event locally by our GD,
+        return super.onTouchEvent(event); //if we have a handler for the touch event we will handle before passing on.
+
     }
 
     // enable listening for accelerometer events
@@ -192,10 +216,72 @@ public class Main2Activity extends AppCompatActivity {
     };
 
 
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        return false;
+    }
 
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+        return false;
+    }
 
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent e) {
+        return false;
+    }
 
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
 
+    @Override
+    public void onShowPress(MotionEvent e) {
 
+    }
 
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        float diffY = e2.getY() - e1.getY();
+        float diffX = e2.getX() - e1.getX();
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+            if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                if (diffX > 0) {
+                    Log.e(TAG, "swip right!");
+                    if (velocityX>500){
+                        //we should turn 10 times
+                        ImageMove.startAnimation(rotateCW10Anim);
+                    }else {
+                        ImageMove.startAnimation(rotateCW5Anim);
+                    }
+                } else {
+                    Log.e(TAG, "swip left!");
+                    if (velocityX<-500){
+                        //we should turn 10 times
+                        ImageMove.startAnimation(rotateCCW10Anim);
+                    }else {
+                        ImageMove.startAnimation(rotateCCW5Anim);
+                    }
+
+                }
+            }
+        }
+        return false;
+    }
 }
